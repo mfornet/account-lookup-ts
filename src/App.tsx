@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
+import NavBar from "./components/NavBar";
+import Table from "./components/Table";
+import Storage from "./storage";
+import { fetchNearPrice } from "./utils";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+    const [nearPrice, setNearPrice] = useState(0.0);
+
+    useEffect(() => {
+        const inner = async () => {
+            setNearPrice(await fetchNearPrice());
+            // await updateAll(false);
+        };
+        inner();
+    }, [nearPrice]);
+
+    const lockups = Storage.loadData();
+
+    return (
+        <div>
+            <NavBar price={nearPrice} />
+            <Table lockups={lockups} nearPrice={nearPrice} currency="USDT" />
+        </div>
+    );
 }
-
-export default App;
