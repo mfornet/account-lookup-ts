@@ -11,6 +11,12 @@ export default function App() {
     useEffect(() => {
         const inner = async () => {
             setNearPrice(await fetchNearPrice());
+
+            console.log(">>HERE");
+            console.log("1>", lockups[0]);
+            await lockups[0].update();
+            console.log("2>", lockups[1]);
+
             // await updateAll(false);
         };
         inner();
