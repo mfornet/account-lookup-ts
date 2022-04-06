@@ -11,7 +11,16 @@ interface GenericTable {
     currency: Currency;
 }
 
-const HEADER = ["#", "Account", "Owner", "Total", "Locked", "Staked", "Pool"];
+const HEADER = [
+    "#",
+    "Account",
+    "Owner",
+    "Total",
+    "Locked",
+    "Liquid",
+    "Staked",
+    "Pool",
+];
 
 export default function Table(props: GenericTable) {
     return (
@@ -68,8 +77,7 @@ export default function Table(props: GenericTable) {
                                             >
                                                 {formatOwnerAccount(
                                                     lockup.owner
-                                                )}
-                                                {/* TODO */}
+                                                )}{" "}
                                                 <button>📋</button>
                                             </td>
                                             <td
@@ -88,6 +96,16 @@ export default function Table(props: GenericTable) {
                                             >
                                                 {formatCurrency(
                                                     lockup.locked,
+                                                    props.currency,
+                                                    props.nearPrice
+                                                )}
+                                            </td>
+                                            <td
+                                                key="liquid"
+                                                className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                                            >
+                                                {formatCurrency(
+                                                    lockup.liquid,
                                                     props.currency,
                                                     props.nearPrice
                                                 )}

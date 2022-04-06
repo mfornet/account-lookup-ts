@@ -15,10 +15,10 @@ export default class Storage {
         }
     }
 
-    // static storeData(lockups: Lockup[]) {
-    //     localStorage.setItem(
-    //         LOCKUPS_STORAGE_KEY,
-    //         JSON.stringify(lockups.map((lockup) => lockup.toJson()))
-    //     );
-    // }
+    static storeData(lockups: Lockup[]) {
+        localStorage.setItem(
+            LOCKUPS_STORAGE_KEY,
+            JSON.stringify(lockups.map((lockup) => lockup.toJson()))
+        );
+    }
 }

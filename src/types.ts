@@ -76,7 +76,7 @@ export class Lockup {
         };
     }
 
-    async update() {
+    async update(): Promise<void> {
         const near = await nearAPI.connect(OPTIONS);
         const account = await near.account(this.accountId);
 
@@ -86,6 +86,16 @@ export class Lockup {
 
         try {
             this.owner = await lockupContract.get_owner_account_id();
+
+            this.pool = await lockupContract.get_staking_pool_account_id();
+            this.locked = await lockupContract.get_locked_amount();
+            // TODO: Get total by querying the staking pool instead
+            this.total = await lockupContract.get_balance();
+            this.liquid = await lockupContract.get_liquid_owners_balance();
+
+            const stakingContract = new StakingContract(account, this.pool);
+
+            this.staked = await stakingContract.staked(this.accountId);
         } catch (e: any) {
             const err_str = e.toString();
             if (err_str.indexOf("MethodNotFound") !== -1) {
@@ -95,17 +105,7 @@ export class Lockup {
             } else {
                 throw e;
             }
-            return null;
         }
-
-        this.pool = await lockupContract.get_staking_pool_account_id();
-        this.locked = await lockupContract.get_locked_amount();
-        this.total = await lockupContract.get_balance();
-        this.liquid = await lockupContract.get_liquid_owners_balance();
-
-        const stakingContract = new StakingContract(account, this.pool);
-
-        this.staked = await stakingContract.staked(this.accountId);
     }
 }
 

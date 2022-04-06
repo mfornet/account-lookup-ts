@@ -1,9 +1,12 @@
 import React from "react";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+import { Buffer } from "buffer";
 
 import { createRoot } from "react-dom/client";
 import App from "./App";
+
+global.Buffer = Buffer;
 const container = document.getElementById("root");
 const root = createRoot(container!);
 root.render(
