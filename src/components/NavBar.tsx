@@ -1,15 +1,53 @@
 import { Disclosure } from "@headlessui/react";
-import {
-    PlusIcon,
-    RefreshIcon,
-    CurrencyDollarIcon,
-} from "@heroicons/react/outline";
-
+import { PlusIcon, CurrencyDollarIcon } from "@heroicons/react/outline";
+import { AccountId, Lockup, OPTIONS } from "../types";
+import Storage from "../storage";
+import * as nearAPI from "near-api-js";
+import { useState } from "react";
 interface NavBarProps {
     price: number;
+    flipCurrency: () => void;
+    setLockups: (lockups: Lockup[]) => void;
+}
+
+function setMessage(msg: string) {
+    console.log(msg);
+}
+
+// TODO: Move function outside of NavBar
+async function addAccount(
+    account: AccountId,
+    setLockups: (lockups: Lockup[]) => void
+) {
+    const lockups = Storage.loadData();
+
+    if (
+        lockups.some((value) => {
+            return value.accountId === account;
+        })
+    ) {
+        setMessage(`Account ${account} already exists`);
+        return;
+    }
+
+    const near = await nearAPI.connect(OPTIONS);
+    const nearAccount = await near.account(account);
+
+    try {
+        await nearAccount.state();
+    } catch (e) {
+        setMessage("Account doesn`t exist");
+        return null;
+    }
+
+    lockups.push(await Lockup.fromAccountId(account));
+    Storage.storeData(lockups);
+    setLockups(lockups);
 }
 
 export default function NavBar(props: NavBarProps) {
+    const [inputValue, setInputValue] = useState("");
+
     return (
         <Disclosure as="nav" className="bg-gray-800">
             {({ open }) => (
@@ -29,15 +67,18 @@ export default function NavBar(props: NavBarProps) {
                             </div>
                             <input
                                 type="text"
-                                id="email-adress-icon"
+                                id="lockup-account"
                                 className="block p-2 pl-10 pr-10 mr-10 w-full text-gray-900 bg-gray-50 rounded-lg border border-gray-300 sm:text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Lockup account id..."
+                                onChange={(e) => setInputValue(e.target.value)}
                             />
                             <button
                                 type="button"
                                 className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white"
+                                onClick={() => {
+                                    addAccount(inputValue, props.setLockups);
+                                }}
                             >
-                                {/* TODO: Load new account */}
                                 <PlusIcon
                                     className="h-6 w-6"
                                     aria-hidden="true"
@@ -47,19 +88,8 @@ export default function NavBar(props: NavBarProps) {
                             <button
                                 type="button"
                                 className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white"
+                                onClick={props.flipCurrency}
                             >
-                                {/* TODO: Refresh all accounts */}
-                                <RefreshIcon
-                                    className="h-6 w-6"
-                                    aria-hidden="true"
-                                />
-                            </button>
-
-                            <button
-                                type="button"
-                                className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white"
-                            >
-                                {/* TODO: Change currency */}
                                 <CurrencyDollarIcon
                                     className="h-6 w-6"
                                     aria-hidden="true"

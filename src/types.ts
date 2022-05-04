@@ -6,7 +6,7 @@ export type AccountId = string;
 export type U256 = string;
 export type Currency = "NEAR" | "USDT";
 
-const OPTIONS = {
+export const OPTIONS = {
     networkId: "mainnet",
     keyStore: new nearAPI.keyStores.BrowserLocalStorageKeyStore(),
     nodeUrl: "https://rpc.mainnet.near.org",
@@ -76,6 +76,20 @@ export class Lockup {
         };
     }
 
+    static async fromAccountId(accountId: AccountId): Promise<Lockup> {
+        const lockup = new Lockup(
+            accountId,
+            "",
+            "",
+            BigNumber.from(0),
+            BigNumber.from(0),
+            BigNumber.from(0),
+            BigNumber.from(0)
+        );
+        await lockup.update();
+        return lockup;
+    }
+
     async update(): Promise<void> {
         const near = await nearAPI.connect(OPTIONS);
         const account = await near.account(this.accountId);
@@ -89,7 +103,7 @@ export class Lockup {
 
             this.pool = await lockupContract.get_staking_pool_account_id();
             this.locked = await lockupContract.get_locked_amount();
-            // TODO: Get total by querying the staking pool instead
+            // TODO: Get total by querying the staking pool instead (if exists)
             this.total = await lockupContract.get_balance();
             this.liquid = await lockupContract.get_liquid_owners_balance();
 
